@@ -233,7 +233,7 @@ for i in range(5):
 
 axs[-1].set_xlabel('Time [s]')
 fig2.suptitle('NMPC Cart-Pole States and Control law', fontsize=14)
-plt.tight_layout(rect=[0, 0, 1, 0.97])
+fig2.savefig('states_plot.png')
 
 
 # Animation
@@ -307,4 +307,9 @@ def animate(i):
 ani = animation.FuncAnimation(fig, animate, frames=len(state_history),
                               init_func=init, interval=dt*1000, blit=True)
 
-plt.show()
+# Save as GIF
+print("Saving animation to simulation.gif...")
+ani.save("simulation.gif", writer="pillow", fps=int(1/dt))
+print("Done.")
+
+# plt.show()

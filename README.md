@@ -17,20 +17,20 @@ The LQR controller is designed to stabilize the inverted pendulum around the upr
 Linear MPC is implemented using a linearized model of the system dynamics.
 
 ### Simulation
-*(Video available at `MPC_Linear/lmpc_cartpole_animation.mov`)*
+![Linear MPC Simulation](MPC_Linear/simulation.gif)
 
 ### State Trajectories
-![Linear MPC States](MPC_Linear/lmpc_cartpole_states.png)
+![Linear MPC States](MPC_Linear/states_plot.png)
 
 ## 3. Nonlinear MPC
 
 Nonlinear MPC uses the full nonlinear dynamics of the cartpole system for optimization.
 
 ### Simulation
-*(Video available at `MPC_Nonlinear/nmpc_cartpole.mov`)*
+![Nonlinear MPC Simulation](MPC_Nonlinear/simulation.gif)
 
 ### State Trajectories
-![Nonlinear MPC States](MPC_Nonlinear/nmpc_cartpole.png)
+![Nonlinear MPC States](MPC_Nonlinear/states_plot.png)
 
 ## Directory Structure
 

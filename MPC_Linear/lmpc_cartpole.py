@@ -257,7 +257,7 @@ axs[4].set_ylabel("u")
 axs[4].grid(True)
 axs[-1].set_xlabel("Time [s]")
 fig.suptitle("LMPC — States & Control (Unified)")
-fig.tight_layout(rect=[0, 0, 1, 0.96])
+fig.savefig('states_plot.png')
 
 # ---------- Unified animation ----------
 # Extract data
@@ -283,7 +283,7 @@ ylim = (-0.4, 1.4)
 fig2, ax = plt.subplots(figsize=(10, 4))
 ax.set_ylim(*ylim)
 ax.set_xlim(pos_anim[0] - view_half, pos_anim[0] + view_half)
-ax.set_title("LMPC - Inverted Pendulum (Unified)")
+ax.set_title("LMPC - Inverted Pendulum")
 ax.grid(True, alpha=0.4)
 
 cart = Rectangle((0, 0), cart_width, cart_height, fc='k', ec='k')
@@ -322,5 +322,10 @@ def animate(i):
 ani = FuncAnimation(fig2, animate, frames=len(pos_anim),
                     init_func=init, interval=dt*1000, blit=False)
 
-plt.show()
+# Save as GIF
+print("Saving animation to simulation.gif...")
+ani.save("simulation.gif", writer="pillow", fps=int(1/dt))
+print("Done.")
+
+# plt.show() # Commented out to run headless if needed
 # ======================================================================
