@@ -106,6 +106,7 @@ dt = 0.01
 N = int(T/dt)
 
 states = [x.copy()]
+u_log = []
 
 for t in range(N):
   u_opt = K @ x
@@ -115,8 +116,10 @@ for t in range(N):
     print(f"t = {t*dt:.1f}s, x = {x.ravel()}")
 
   states.append(x.copy())
+  u_log.append(u_opt[0,0])
 
 states = np.hstack(states)
+u_log = np.array(u_log)
 
 # Pause before motion: 2 seconds of rest
 pause_frames = int(2 / dt)
@@ -124,56 +127,66 @@ initial_state = states[:, 0:1]
 pause_states = np.repeat(initial_state, pause_frames, axis=1)
 states_with_pause = np.hstack([pause_states, states])
 N_total = states_with_pause.shape[1]
-time = np.linspace(0, T + 2, N_total)
 
+# Plotting
 time = np.linspace(0, T, N+1)
+# Adjust u_log time to match states (append last u or ignore last state)
+# states has N+1 points, u_log has N points. 
+# We'll plot u_log vs time[:-1]
 
-plt.subplot(2,1,1)
-plt.plot(time,states[0], label='theta')
+fig, axs = plt.subplots(5, 1, figsize=(10, 10), sharex=True)
+labels = ['theta', 'theta_dot', 'position', 'position_dot']
+ylabels = ['Angle [rad]', 'Ang. Vel [rad/s]', 'Position [m]', 'Velocity [m/s]']
 
-plt.xlabel('Time (s)')
-plt.ylabel('Position')
-plt.legend()
-plt.grid(True)
+for i in range(4):
+    axs[i].plot(time, states[i], label=labels[i])
+    axs[i].set_ylabel(ylabels[i])
+    axs[i].grid(True)
+    axs[i].legend(loc='upper right')
 
-plt.subplot(2,1,2)
-plt.plot(time, states[2], label='position')
+axs[4].plot(time[:-1], u_log, label='Control (u)', color='r')
+axs[4].set_ylabel('Force [N]')
+axs[4].set_xlabel('Time (s)')
+axs[4].grid(True)
+axs[4].legend(loc='upper right')
 
-plt.xlabel('Time (s)')
-plt.ylabel('theta')
-plt.legend()
-plt.grid(True)
-plt.savefig('result_graph.png')
+fig.suptitle('LQR Control Results')
+plt.tight_layout()
+plt.savefig('states_plot.png')
 
 # Animation
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(10, 4))
 ax.set_ylim(-1.2, 1.2)
 cart_width = 0.3
 cart_height = 0.2
 cart = plt.Rectangle((0, 0), cart_width, cart_height, fc='k')
 ax.add_patch(cart)
-line, = ax.plot([], [], 'o-', lw=3, color='red')
+line, = ax.plot([], [], 'o-', lw=3, color='orange')
+time_text = ax.text(0.02, 0.9, '', transform=ax.transAxes)
 
 def init():
     cart.set_xy((-cart_width / 2, -cart_height / 2))
     line.set_data([], [])
-    return cart, line
+    time_text.set_text('')
+    return cart, line, time_text
 
 def animate(i):
     p = states_with_pause[2, i]
     theta = states_with_pause[0, i]
     pend_x = p - l * np.sin(theta)
     pend_y = l * np.cos(theta)
-    view_half_width = 1.5
+    view_half_width = 2.0
     ax.set_xlim(p - view_half_width, p + view_half_width)
     cart.set_xy((p - cart_width / 2, -cart_height / 2))
     line.set_data([p, pend_x], [0, pend_y])
-    return cart, line
+    time_text.set_text(f"t = {i*dt - 2.0:.2f} s") # correct time shift for pause
+    return cart, line, time_text
 
 ani = FuncAnimation(fig, animate, frames=N_total, init_func=init,
-                    blit=False, interval=dt * 1000)
-ani.save('result_video.gif', writer='pillow', fps=30)
+                    blit=True, interval=dt * 1000)
 
-plt.title("Linearized Inverted Pendulum with LQR")
-plt.grid()
+print("Saving animation to simulation.gif...")
+ani.save('simulation.gif', writer='pillow', fps=30)
+print("Done.")
+
 # plt.show()
